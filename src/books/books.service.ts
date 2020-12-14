@@ -1,10 +1,25 @@
 import { Injectable, HttpException } from '@nestjs/common';
-import { BOOKS } from '../mocks/books.mock';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+// import { BOOKS } from '../mocks/books.mock';
+import { Book, BookDocument } from './shemas/book.schema';
+import { CreateBookDTO } from './dto/create-book.dto';
 
 @Injectable()
 export class BooksService {
-  books = BOOKS;
+  constructor(@InjectModel(Book.name) private bookModel: Model<BookDocument>) {}
 
+  async create(createBookDTO: CreateBookDTO): Promise<Book> {
+    const createdBook = new this.bookModel(createBookDTO);
+    return createdBook.save();
+  }
+
+  async findAll(): Promise<Book[]> {
+    return this.bookModel.find().exec();
+  }
+
+  // books = BOOKS;
+  /* 
   getBooks(): Promise<any> {
     return new Promise((resolve) => {
       resolve(this.books);
@@ -39,5 +54,5 @@ export class BooksService {
       this.books.splice(1, index);
       resolve(this.books);
     });
-  }
+  } */
 }
